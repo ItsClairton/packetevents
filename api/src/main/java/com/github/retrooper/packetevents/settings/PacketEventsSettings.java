@@ -18,10 +18,14 @@
 
 package com.github.retrooper.packetevents.settings;
 
+import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 import com.github.retrooper.packetevents.util.TimeStampMode;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -40,9 +44,21 @@ public class PacketEventsSettings {
     private boolean fullStackTraceEnabled = false;
     private boolean kickOnPacketExceptionEnabled = true;
     private boolean kickIfTerminated = true;
+    private List<ClientVersion> blockStateVersions = null;
     private Function<String, InputStream> resourceProvider = path -> PacketEventsSettings.class
             .getClassLoader()
             .getResourceAsStream(path);
+
+    /**
+     * Load states from specific versions only
+     *
+     * @param versions Client Versions
+     * @return Settings instance
+     */
+    public PacketEventsSettings blockStateVersions(ClientVersion... versions) {
+        blockStateVersions = Arrays.asList(versions);
+        return this;
+    }
 
     /**
      * Time stamp mode. How precise should the timestamps in the events be.
@@ -163,6 +179,15 @@ public class PacketEventsSettings {
     public PacketEventsSettings customResourceProvider(Function<String, InputStream> resourceProvider) {
         this.resourceProvider = resourceProvider;
         return this;
+    }
+
+    /**
+     * Load states from specific versions only.
+     *
+     * @return Client Versions
+     */
+    public List<ClientVersion> blockStateVersions() {
+        return blockStateVersions;
     }
 
     /**

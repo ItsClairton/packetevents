@@ -44,12 +44,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.AbstractMap;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static com.github.retrooper.packetevents.util.adventure.AdventureIndexUtil.indexValueOrThrow;
 
@@ -73,28 +68,6 @@ public class WrappedBlockState {
     private static final Map<Byte, Map<StateType, WrappedBlockState>> DEFAULT_STATES = new HashMap<>();
 
     private static final Map<String, String> STRING_UPDATER = new HashMap<>();
-
-    static {
-        STRING_UPDATER.put("grass_path", "dirt_path"); // 1.16 -> 1.17
-
-        // Try to reduce memory footprint by re-using hashmaps when they are equal
-        // We do this by setting the key to the NBTCompound of the data and the value to the data
-        // this.data = cache.computeIfAbsent(dataContent, (key) -> { // NBTCompound to data });
-        // This will get an equal value if present, otherwise it will compute the value
-        // Once this is done, we remove this cache to save memory
-        // A HashMap is used instead of another data type because a hashmap is o(1)
-        //
-        // 6160 total combinations, last updated with 1.20.5
-        // This brings total memory usage from 62 MB to 34 MB, a 28 MB reduction
-        // Using a HashMap reduces memory usage to less than a megabyte, I can't get precise numbers because it is hard to see on a heapdump
-        Map<BinaryNBTCompound, Map.Entry<Map<StateValue, Object>, String>> cache = new HashMap<>(6160, 70);
-
-        loadLegacy(cache);
-        loadModern(cache);
-
-        cache.clear();
-        cache = null;
-    }
 
     int globalID;
     StateType type;
@@ -231,7 +204,13 @@ public class WrappedBlockState {
     @NotNull
     public static WrappedBlockState getByString(ClientVersion version, String string, boolean clone) {
         byte mappingsIndex = getMappingsIndex(version);
-        final WrappedBlockState state = BY_STRING.get(mappingsIndex).getOrDefault(string.replace("minecraft:", ""), AIR);
+
+        Map<String, WrappedBlockState> states = BY_STRING.get(mappingsIndex);
+        if (states == null) {
+            throw new IllegalStateException("block states of version " + version.name() + " are not loaded");
+        }
+
+        final WrappedBlockState state = states.getOrDefault(string.replace("minecraft:", ""), AIR);
         return clone ? state.clone() : state;
     }
 
@@ -249,11 +228,18 @@ public class WrappedBlockState {
     public static WrappedBlockState getDefaultState(ClientVersion version, StateType type, boolean clone) {
         if (type == StateTypes.AIR) return AIR;
         byte mappingsIndex = getMappingsIndex(version);
-        WrappedBlockState state = DEFAULT_STATES.get(mappingsIndex).get(type);
+
+        Map<StateType, WrappedBlockState> states = DEFAULT_STATES.get(mappingsIndex);
+        if (states == null) {
+            throw new IllegalStateException("block states of version " + version.name() + " are not loaded");
+        }
+
+        WrappedBlockState state = states.get(type);
         if (state == null) {
             PacketEvents.getAPI().getLogger().config("Default state for " + type.getName() + " is null. Returning AIR");
             return AIR;
         }
+
         return clone ? state.clone() : state;
     }
 
@@ -289,7 +275,12 @@ public class WrappedBlockState {
         return 13;
     }
 
-    private static void loadLegacy(Map<BinaryNBTCompound, Map.Entry<Map<StateValue, Object>, String>> cache) {
+    private static void loadLegacy(List<ClientVersion> versions,
+                                   Map<BinaryNBTCompound, Map.Entry<Map<StateValue, Object>, String>> cache) {
+        if (versions.stream().noneMatch(version -> getMappingsIndex(version) == 0)) {
+            return;
+        }
+
         Map<Integer, WrappedBlockState> stateByIdMap = new HashMap<>();
         Map<WrappedBlockState, Integer> stateToIdMap = new HashMap<>();
         Map<String, WrappedBlockState> stateByStringMap = new HashMap<>();
@@ -390,12 +381,21 @@ public class WrappedBlockState {
         }
     }
 
-    private static void loadModern(Map<BinaryNBTCompound, Map.Entry<Map<StateValue, Object>, String>> cache) {
+    private static void loadModern(List<ClientVersion> versions,
+                                   Map<BinaryNBTCompound, Map.Entry<Map<StateValue, Object>, String>> cache) {
+        if (versions.stream().noneMatch(version -> getMappingsIndex(version) != 0)) {
+            return;
+        }
+
         try (final SequentialNBTReader.Compound compound = MappingHelper.decompress("mappings/block/modern_block_mappings")) {
             compound.skipOne(); // Skip version
 
             for (Map.Entry<String, NBT> versionEntry : compound) {
                 ClientVersion version = ClientVersion.valueOf(versionEntry.getKey());
+                if (!versions.contains(version)) {
+                    continue;
+                }
+
                 byte mappingIndex = getMappingsIndex(version);
                 SequentialNBTReader.List list = (SequentialNBTReader.List) versionEntry.getValue();
 
@@ -1443,5 +1443,31 @@ public class WrappedBlockState {
         return INTO_STRING.get(mappingsIndex).get(this);
     }
 
-    public static void ensureLoad() { /**/ }
+    public static void ensureLoad() {
+        STRING_UPDATER.put("grass_path", "dirt_path"); // 1.16 -> 1.17
+
+        // Try to reduce memory footprint by re-using hashmaps when they are equal
+        // We do this by setting the key to the NBTCompound of the data and the value to the data
+        // this.data = cache.computeIfAbsent(dataContent, (key) -> { // NBTCompound to data });
+        // This will get an equal value if present, otherwise it will compute the value
+        // Once this is done, we remove this cache to save memory
+        // A HashMap is used instead of another data type because a hashmap is o(1)
+        //
+        // 6160 total combinations, last updated with 1.20.5
+        // This brings total memory usage from 62 MB to 34 MB, a 28 MB reduction
+        // Using a HashMap reduces memory usage to less than a megabyte, I can't get precise numbers because it is hard to see on a heapdump
+        Map<BinaryNBTCompound, Map.Entry<Map<StateValue, Object>, String>> cache = new HashMap<>(6160, 70);
+
+        List<ClientVersion> versions = PacketEvents.getAPI().getSettings().blockStateVersions();
+        if (versions == null) {
+            versions = Collections.singletonList(PacketEvents.getAPI().getServerManager().getVersion().toClientVersion());
+        }
+
+        loadLegacy(versions, cache);
+        loadModern(versions, cache);
+
+        cache.clear();
+        cache = null;
+    }
+
 }
