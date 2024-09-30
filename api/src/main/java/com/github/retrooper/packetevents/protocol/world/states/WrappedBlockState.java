@@ -187,7 +187,13 @@ public class WrappedBlockState {
     public static WrappedBlockState getByGlobalId(ClientVersion version, int globalID, boolean clone) {
         if (globalID == 0) return AIR; // Hardcode for performance
         byte mappingsIndex = getMappingsIndex(version);
-        final WrappedBlockState state = BY_ID.get(mappingsIndex).getOrDefault(globalID, AIR);
+
+        Map<Integer, WrappedBlockState> states = BY_ID.get(mappingsIndex);
+        if (states == null) {
+            throw new IllegalStateException("block states of version " + version.name() + " are not loaded");
+        }
+
+        final WrappedBlockState state = states.getOrDefault(globalID, AIR);
         return clone ? state.clone() : state;
     }
 
