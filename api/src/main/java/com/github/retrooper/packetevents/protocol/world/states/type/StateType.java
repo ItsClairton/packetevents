@@ -28,9 +28,9 @@ import com.github.retrooper.packetevents.util.mappings.MappingHelper;
 import com.github.retrooper.packetevents.util.mappings.TypesBuilder;
 import com.github.retrooper.packetevents.util.mappings.TypesBuilderData;
 
-import java.util.Objects;
-
 public class StateType {
+
+    private final int globalId;
 
     private final TypesBuilder typesBuilder;
     private final TypesBuilderData typeData;
@@ -46,11 +46,13 @@ public class StateType {
     private final MaterialType materialType;
 
     public StateType(
+            int globalId,
             TypesBuilder typesBuilder, TypesBuilderData typeData,
             float blastResistance, float hardness, boolean isSolid,
             boolean isBlocking, boolean isAir, boolean requiresCorrectTool,
             boolean isShapeExceedsCube, MaterialType materialType
     ) {
+        this.globalId = globalId;
         this.typesBuilder = typesBuilder;
         this.typeData = typeData;
         this.blastResistance = blastResistance;
@@ -74,6 +76,8 @@ public class StateType {
     public WrappedBlockState createBlockState(ClientVersion version) {
         return WrappedBlockState.getDefaultState(version, this);
     }
+
+    public int getGlobalId() { return globalId; }
 
     public String getName() {
         return typeData.getName().getKey();
@@ -139,7 +143,8 @@ public class StateType {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         StateType stateType = (StateType) o;
-        return Float.compare(blastResistance, stateType.blastResistance) == 0
+
+        /* return Float.compare(blastResistance, stateType.blastResistance) == 0
                 && Float.compare(hardness, stateType.hardness) == 0
                 && isSolid == stateType.isSolid
                 && isBlocking == stateType.isBlocking
@@ -147,12 +152,15 @@ public class StateType {
                 && requiresCorrectTool == stateType.requiresCorrectTool
                 && exceedsCube == stateType.exceedsCube
                 && Objects.equals(getName(), stateType.getName())
-                && materialType == stateType.materialType;
+                && materialType == stateType.materialType; */
+
+        return globalId == stateType.globalId;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), blastResistance, hardness, isSolid, isBlocking, isAir, requiresCorrectTool, exceedsCube, materialType);
+        // return Objects.hash(getName(), blastResistance, hardness, isSolid, isBlocking, isAir, requiresCorrectTool, exceedsCube, materialType);
+        return globalId;
     }
 
     public final class Mapped implements MappedEntity {

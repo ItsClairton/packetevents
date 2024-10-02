@@ -9,6 +9,7 @@ paper = "1.20.6-R0.1-SNAPSHOT"
 bungeecord = "1.21-R0.1-SNAPSHOT"
 velocity = "3.1.0"
 run-paper = "2.3.0"
+fastutil = "8.5.14"
 
 [libraries]
 adventure-api = { group = "net.kyori", name = "adventure-api", version.ref = "adventure" }
@@ -27,6 +28,7 @@ protocol-support = { group = "com.github.ProtocolSupport", name = "ProtocolSuppo
 paper = { group = "io.papermc.paper", name = "paper-api", version.ref = "paper" }
 bungeecord = { group = "net.md-5", name = "bungeecord-api", version.ref = "bungeecord" }
 velocity = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocity" }
+fastutil = { group = "it.unimi.dsi", name = "fastutil", version.ref = "fastutil" }
 
 [bundles]
 adventure = [ "adventure-api", "adventure-nbt", "adventure-key", "adventure-examination-api", "adventure-examination-string" ]

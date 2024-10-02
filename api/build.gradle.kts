@@ -29,6 +29,7 @@ dependencies {
     api(libs.adventure.text.serializer.legacy) {
         excludeAdventure()
     }
+    compileOnly(libs.fastutil)
     compileOnly(libs.gson)
 
     testImplementation(libs.bundles.adventure)

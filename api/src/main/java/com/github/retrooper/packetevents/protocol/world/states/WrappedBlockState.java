@@ -39,6 +39,13 @@ import com.github.retrooper.packetevents.protocol.world.states.type.StateTypes;
 import com.github.retrooper.packetevents.protocol.world.states.type.StateValue;
 import com.github.retrooper.packetevents.util.BinaryNBTCompound;
 import com.github.retrooper.packetevents.util.mappings.MappingHelper;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectArrayMap;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayInputStream;
@@ -61,17 +68,15 @@ import static com.github.retrooper.packetevents.util.adventure.AdventureIndexUti
  */
 public class WrappedBlockState {
     private static final WrappedBlockState AIR = new WrappedBlockState(StateTypes.AIR, new EnumMap<>(StateValue.class), 0, (byte) 0);
-    private static final Map<Byte, Map<String, WrappedBlockState>> BY_STRING = new HashMap<>();
-    private static final Map<Byte, Map<Integer, WrappedBlockState>> BY_ID = new HashMap<>();
-    private static final Map<Byte, Map<WrappedBlockState, String>> INTO_STRING = new HashMap<>();
-    private static final Map<Byte, Map<WrappedBlockState, Integer>> INTO_ID = new HashMap<>();
-    private static final Map<Byte, Map<StateType, WrappedBlockState>> DEFAULT_STATES = new HashMap<>();
-
-    private static final Map<String, String> STRING_UPDATER = new HashMap<>();
+    private static final Byte2ObjectMap<Map<String, WrappedBlockState>> BY_STRING = new Byte2ObjectArrayMap<>();
+    private static final Byte2ObjectMap<Int2ObjectMap<WrappedBlockState>> BY_ID = new Byte2ObjectArrayMap<>();
+    private static final Byte2ObjectMap<Map<WrappedBlockState, String>> INTO_STRING = new Byte2ObjectArrayMap<>();
+    private static final Byte2ObjectMap<Object2IntMap<WrappedBlockState>> INTO_ID = new Byte2ObjectArrayMap<>();
+    private static final Byte2ObjectMap<Map<StateType, WrappedBlockState>> DEFAULT_STATES = new Byte2ObjectArrayMap<>();
 
     int globalID;
     StateType type;
-    Map<StateValue, Object> data = new HashMap<>(0);
+    Map<StateValue, Object> data = new Object2ObjectOpenHashMap<>(0);
     boolean hasClonedData = false;
     byte mappingsIndex;
 
@@ -188,7 +193,7 @@ public class WrappedBlockState {
         if (globalID == 0) return AIR; // Hardcode for performance
         byte mappingsIndex = getMappingsIndex(version);
 
-        Map<Integer, WrappedBlockState> states = BY_ID.get(mappingsIndex);
+        Int2ObjectMap<WrappedBlockState> states = BY_ID.get(mappingsIndex);
         if (states == null) {
             throw new IllegalStateException("block states of version " + version.name() + " are not loaded");
         }
@@ -287,11 +292,11 @@ public class WrappedBlockState {
             return;
         }
 
-        Map<Integer, WrappedBlockState> stateByIdMap = new HashMap<>();
-        Map<WrappedBlockState, Integer> stateToIdMap = new HashMap<>();
-        Map<String, WrappedBlockState> stateByStringMap = new HashMap<>();
-        Map<WrappedBlockState, String> stateToStringMap = new HashMap<>();
-        Map<StateType, WrappedBlockState> stateTypeToBlockStateMap = new HashMap<>();
+        Int2ObjectMap<WrappedBlockState> stateByIdMap = new Int2ObjectOpenHashMap<>();
+        Object2IntMap<WrappedBlockState> stateToIdMap = new Object2IntOpenHashMap<>();
+        Map<String, WrappedBlockState> stateByStringMap = new Object2ObjectOpenHashMap<>();
+        Map<WrappedBlockState, String> stateToStringMap = new Object2ObjectOpenHashMap<>();
+        Map<StateType, WrappedBlockState> stateTypeToBlockStateMap = new Object2ObjectOpenHashMap<>();
 
         try (final SequentialNBTReader.Compound compound = MappingHelper.decompress("mappings/block/legacy_block_mappings")) {
             compound.skipOne(); // Skip version
@@ -393,6 +398,8 @@ public class WrappedBlockState {
             return;
         }
 
+        final Map<String, String> STRING_UPDATER = new HashMap<>();
+
         try (final SequentialNBTReader.Compound compound = MappingHelper.decompress("mappings/block/modern_block_mappings")) {
             compound.skipOne(); // Skip version
 
@@ -405,11 +412,11 @@ public class WrappedBlockState {
                 byte mappingIndex = getMappingsIndex(version);
                 SequentialNBTReader.List list = (SequentialNBTReader.List) versionEntry.getValue();
 
-                Map<Integer, WrappedBlockState> stateByIdMap = new HashMap<>();
-                Map<WrappedBlockState, Integer> stateToIdMap = new HashMap<>();
-                Map<String, WrappedBlockState> stateByStringMap = new HashMap<>();
-                Map<WrappedBlockState, String> stateToStringMap = new HashMap<>();
-                Map<StateType, WrappedBlockState> stateTypeToBlockStateMap = new HashMap<>();
+                Int2ObjectMap<WrappedBlockState> stateByIdMap = new Int2ObjectOpenHashMap<>();
+                Object2IntMap<WrappedBlockState> stateToIdMap = new Object2IntOpenHashMap<>();
+                Map<String, WrappedBlockState> stateByStringMap = new Object2ObjectOpenHashMap<>();
+                Map<WrappedBlockState, String> stateToStringMap = new Object2ObjectOpenHashMap<>();
+                Map<StateType, WrappedBlockState> stateTypeToBlockStateMap = new Object2ObjectOpenHashMap<>();
 
                 int id = 0;
                 for (NBT e : list) {
@@ -1450,8 +1457,6 @@ public class WrappedBlockState {
     }
 
     public static void ensureLoad() {
-        STRING_UPDATER.put("grass_path", "dirt_path"); // 1.16 -> 1.17
-
         // Try to reduce memory footprint by re-using hashmaps when they are equal
         // We do this by setting the key to the NBTCompound of the data and the value to the data
         // this.data = cache.computeIfAbsent(dataContent, (key) -> { // NBTCompound to data });

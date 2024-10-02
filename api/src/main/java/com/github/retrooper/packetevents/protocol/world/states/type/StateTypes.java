@@ -1224,7 +1224,7 @@ public class StateTypes {
 
         public StateType build() {
             TypesBuilderData data = TYPES_BUILDER.define(this.name.getKey().toLowerCase(Locale.ROOT));
-            StateType type = new StateType(
+            StateType type = new StateType(ALL_STATE_TYPES.size(),
                     TYPES_BUILDER, data, blastResistance, hardness, isSolid,
                     isBlocking, isAir, requiresCorrectTool, isShapeExceedsCube, materialType);
             ALL_STATE_TYPES.add(type);
