@@ -399,6 +399,7 @@ public class WrappedBlockState {
         }
 
         final Map<String, String> STRING_UPDATER = new HashMap<>();
+        STRING_UPDATER.put("grass_path", "dirt_path"); // 1.16 -> 1.17
 
         try (final SequentialNBTReader.Compound compound = MappingHelper.decompress("mappings/block/modern_block_mappings")) {
             compound.skipOne(); // Skip version

@@ -13,11 +13,10 @@ fun getVersionMeta(includeHash: Boolean): String {
     }
     var commitHash = ""
     if (includeHash && file(".git").isDirectory) {
-        val stdout = ByteArrayOutputStream()
-        exec {
+        val stdout = providers.exec {
             commandLine("git", "rev-parse", "--short", "HEAD")
-            standardOutput = stdout
-        }
+        }.standardOutput.asText.get().trim()
+
         commitHash = "+${stdout.toString().trim()}"
     }
     return "$commitHash-SNAPSHOT"
