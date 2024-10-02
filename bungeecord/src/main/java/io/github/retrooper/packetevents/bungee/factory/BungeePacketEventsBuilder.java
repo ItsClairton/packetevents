@@ -223,11 +223,11 @@ public class BungeePacketEventsBuilder {
                         getUpdateChecker().handleUpdateCheck();
                     }
 
-                    Metrics metrics = new Metrics(plugin, 11327);
-                    //Just to have an idea of which versions of packetevents people use
-                    metrics.addCustomChart(new Metrics.SimplePie("packetevents_version", () -> {
-                        return getVersion().toStringWithoutSnapshot();
-                    }));
+                    if (settings.isbStatsEnabled()) {
+                        Metrics metrics = new Metrics(plugin, 11327);
+                        //Just to have an idea of which versions of packetevents people use
+                        metrics.addCustomChart(new Metrics.SimplePie("packetevents_version", () -> getVersion().toStringWithoutSnapshot()));
+                    }
 
                     PacketType.Play.Client.load();
                     PacketType.Play.Server.load();
