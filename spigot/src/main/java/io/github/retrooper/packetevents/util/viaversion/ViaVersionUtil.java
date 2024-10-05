@@ -24,7 +24,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class ViaVersionUtil {
-    private static ViaState available = ViaState.UNKNOWN;
+
+    private static boolean CHECKED_FOR_VIA = false;
+    private static boolean VIA_PRESENT = false;
+
     private static ViaVersionAccessor viaVersionAccessor;
 
     private ViaVersionUtil() {
@@ -48,15 +51,15 @@ public class ViaVersionUtil {
     }
 
     public static void checkIfViaIsPresent() {
-        boolean present = Bukkit.getPluginManager().isPluginEnabled("ViaVersion");
-        available = present ? ViaState.ENABLED : ViaState.DISABLED;
+        VIA_PRESENT = Bukkit.getPluginManager().isPluginEnabled("ViaVersion");
+        CHECKED_FOR_VIA = true;
     }
 
     public static boolean isAvailable() {
-        if (available == ViaState.UNKNOWN) { // Plugins haven't loaded... let's refer to whether we have a class
+        if (!CHECKED_FOR_VIA) { // Plugins haven't loaded... let's refer to whether we have a class
             return getViaVersionAccessor() != null;
         }
-        return available == ViaState.ENABLED;
+        return VIA_PRESENT;
     }
 
     public static ViaVersionAccessor getViaVersionAccessor() {
@@ -83,10 +86,4 @@ public class ViaVersionUtil {
     public static Class<?> getBukkitEncodeHandlerClass() {
         return getViaVersionAccessor().getBukkitEncodeHandlerClass();
     }
-}
-
-enum ViaState {
-    UNKNOWN,
-    DISABLED,
-    ENABLED
 }

@@ -69,11 +69,13 @@ import com.github.retrooper.packetevents.protocol.packettype.serverbound.Serverb
 import com.github.retrooper.packetevents.protocol.packettype.serverbound.ServerboundPacketType_1_9;
 import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 import com.github.retrooper.packetevents.util.VersionMapper;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectMap;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 public final class PacketType {
 
@@ -436,7 +438,7 @@ public final class PacketType {
             SELECT_KNOWN_PACKS;
 
             private static int INDEX = 0;
-            private static final Map<Byte, Map<Integer, PacketTypeCommon>> PACKET_TYPE_ID_MAP = new HashMap<>();
+            private static final Byte2ObjectMap<Int2ObjectMap<PacketTypeCommon>> PACKET_TYPE_ID_MAP = new Byte2ObjectOpenHashMap<>();
             private final int[] ids;
 
             Client() {
@@ -457,7 +459,7 @@ public final class PacketType {
                     int id = constant.ordinal();
                     Configuration.Client value = Configuration.Client.valueOf(constant.name());
                     value.ids[index] = id;
-                    Map<Integer, PacketTypeCommon> packetIdMap = PACKET_TYPE_ID_MAP.computeIfAbsent((byte) index, k -> new HashMap<>());
+                    Int2ObjectMap<PacketTypeCommon> packetIdMap = PACKET_TYPE_ID_MAP.computeIfAbsent((byte) index, k -> new Int2ObjectOpenHashMap<>());
                     packetIdMap.put(id, value);
                 }
                 INDEX++;
@@ -472,7 +474,7 @@ public final class PacketType {
                     PacketType.prepare();
                 }
                 int index = SERVERBOUND_CONFIG_VERSION_MAPPER.getIndex(version);
-                Map<Integer, PacketTypeCommon> map = PACKET_TYPE_ID_MAP.get((byte) index);
+                Int2ObjectMap<PacketTypeCommon> map = PACKET_TYPE_ID_MAP.get((byte) index);
                 return map.get(packetId);
             }
 
@@ -523,7 +525,7 @@ public final class PacketType {
             SERVER_LINKS;
 
             private static int INDEX = 0;
-            private static final Map<Byte, Map<Integer, PacketTypeCommon>> PACKET_TYPE_ID_MAP = new HashMap<>();
+            private static final Byte2ObjectMap<Int2ObjectMap<PacketTypeCommon>> PACKET_TYPE_ID_MAP = new Byte2ObjectOpenHashMap<>();
             private final int[] ids;
 
             Server() {
@@ -546,7 +548,7 @@ public final class PacketType {
                     int id = constant.ordinal();
                     Configuration.Server value = Configuration.Server.valueOf(constant.name());
                     value.ids[index] = id;
-                    Map<Integer, PacketTypeCommon> packetIdMap = PACKET_TYPE_ID_MAP.computeIfAbsent((byte) index, k -> new HashMap<>());
+                    Int2ObjectMap<PacketTypeCommon> packetIdMap = PACKET_TYPE_ID_MAP.computeIfAbsent((byte) index, k -> new Int2ObjectOpenHashMap<>());
                     packetIdMap.put(id, value);
                 }
                 INDEX++;
@@ -561,7 +563,7 @@ public final class PacketType {
                     PacketType.prepare();
                 }
                 int index = CLIENTBOUND_CONFIG_VERSION_MAPPER.getIndex(version);
-                Map<Integer, PacketTypeCommon> map = PACKET_TYPE_ID_MAP.get((byte) index);
+                Int2ObjectMap<PacketTypeCommon> map = PACKET_TYPE_ID_MAP.get((byte) index);
                 return map.get(packetId);
             }
 
@@ -667,7 +669,7 @@ public final class PacketType {
             DEBUG_SAMPLE_SUBSCRIPTION;
 
             private static int INDEX = 0;
-            private static final Map<Byte, Map<Integer, PacketTypeCommon>> PACKET_TYPE_ID_MAP = new HashMap<>();
+            private static final Byte2ObjectMap<Int2ObjectMap<PacketTypeCommon>> PACKET_TYPE_ID_MAP = new Byte2ObjectOpenHashMap<>();
             private final int[] ids;
 
             Client() {
@@ -681,7 +683,7 @@ public final class PacketType {
                     PacketType.prepare();
                 }
                 int index = SERVERBOUND_PLAY_VERSION_MAPPER.getIndex(version);
-                Map<Integer, PacketTypeCommon> packetIdMap = PACKET_TYPE_ID_MAP.computeIfAbsent((byte) index, k -> new HashMap<>());
+                Int2ObjectMap<PacketTypeCommon> packetIdMap = PACKET_TYPE_ID_MAP.computeIfAbsent((byte) index, k -> new Int2ObjectOpenHashMap<>());
                 return packetIdMap.get(packetId);
             }
 
@@ -691,8 +693,8 @@ public final class PacketType {
                     int id = constant.ordinal();
                     Client value = Client.valueOf(constant.name());
                     value.ids[index] = id;
-                    Map<Integer, PacketTypeCommon> packetIdMap = PACKET_TYPE_ID_MAP.computeIfAbsent((byte) index,
-                            k -> new HashMap<>());
+                    Int2ObjectMap<PacketTypeCommon> packetIdMap = PACKET_TYPE_ID_MAP.computeIfAbsent((byte) index,
+                            k -> new Int2ObjectOpenHashMap<>());
                     packetIdMap.put(id, value);
                 }
                 INDEX++;
@@ -904,7 +906,7 @@ public final class PacketType {
             SERVER_LINKS;
 
             private static int INDEX = 0;
-            private static final Map<Byte, Map<Integer, PacketTypeCommon>> PACKET_TYPE_ID_MAP = new HashMap<>();
+            private static final Byte2ObjectMap<Int2ObjectMap<PacketTypeCommon>> PACKET_TYPE_ID_MAP = new Byte2ObjectOpenHashMap<>();
             private final int[] ids;
 
             Server() {
@@ -926,7 +928,7 @@ public final class PacketType {
                     PacketType.prepare();
                 }
                 int index = CLIENTBOUND_PLAY_VERSION_MAPPER.getIndex(version);
-                Map<Integer, PacketTypeCommon> map = PACKET_TYPE_ID_MAP.get((byte) index);
+                Int2ObjectMap<PacketTypeCommon> map = PACKET_TYPE_ID_MAP.get((byte) index);
                 return map.get(packetId);
             }
 
@@ -941,7 +943,7 @@ public final class PacketType {
                     int id = constant.ordinal();
                     Server value = Server.valueOf(constant.name());
                     value.ids[index] = id;
-                    Map<Integer, PacketTypeCommon> packetIdMap = PACKET_TYPE_ID_MAP.computeIfAbsent((byte) index, k -> new HashMap<>());
+                    Int2ObjectMap<PacketTypeCommon> packetIdMap = PACKET_TYPE_ID_MAP.computeIfAbsent((byte) index, k -> new Int2ObjectOpenHashMap<>());
                     packetIdMap.put(id, value);
                 }
                 INDEX++;

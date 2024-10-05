@@ -26,6 +26,11 @@ import com.github.retrooper.packetevents.util.mappings.MappingHelper;
 import com.github.retrooper.packetevents.util.mappings.TypesBuilder;
 import com.github.retrooper.packetevents.util.mappings.TypesBuilderData;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
+import it.unimi.dsi.fastutil.bytes.Byte2IntMap;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectMap;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -41,8 +46,8 @@ import java.util.function.Function;
 public class Parsers {
 
     private static final List<Parser> ALL_PARSERS = new ArrayList<>(); // support for old methods
-    private static final Map<String, Parser> PARSER_MAP = new HashMap<>();
-    private static final Map<Byte, Map<Integer, Parser>> PARSER_ID_MAP = new HashMap<>();
+    private static final Map<String, Parser> PARSER_MAP = new Object2ObjectOpenHashMap<>();
+    private static final Byte2ObjectMap<Int2ObjectMap<Parser>> PARSER_ID_MAP = new Byte2ObjectOpenHashMap<>();
     private static final TypesBuilder TYPES_BUILDER = new TypesBuilder("command/argument_parser_mappings");
 
     public static Parser define(String key) {
@@ -65,7 +70,7 @@ public class Parsers {
 
     public static Parser getById(ClientVersion version, int id) {
         int index = TYPES_BUILDER.getDataIndex(version);
-        Map<Integer, Parser> idMap = PARSER_ID_MAP.get((byte) index);
+        Int2ObjectMap<Parser> idMap = PARSER_ID_MAP.get((byte) index);
         return idMap.get(id);
     }
 

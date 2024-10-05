@@ -6,7 +6,6 @@ import com.github.retrooper.packetevents.util.PacketEventsImplHelper;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import net.minecraft.client.player.LocalPlayer;
 
@@ -24,6 +23,7 @@ public class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
 
     public PacketDecoder(User user) {
         this.user = user;
+        this.checkedCompression = !PacketEvents.getAPI().getServerManager().isCompressionEnabled();
     }
 
     @Override
@@ -45,7 +45,6 @@ public class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
     }
-
 
     private boolean handleCompression(ChannelHandlerContext ctx, ByteBuf buffer) {
         if (checkedCompression) return false;

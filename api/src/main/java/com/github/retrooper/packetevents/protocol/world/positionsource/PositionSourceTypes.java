@@ -29,16 +29,19 @@ import com.github.retrooper.packetevents.util.mappings.TypesBuilderData;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper.Reader;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper.Writer;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectMap;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class PositionSourceTypes {
 
-    private static final Map<String, PositionSourceType<?>> POS_SOURCE_MAP = new HashMap<>();
-    private static final Map<Byte, Map<Integer, PositionSourceType<?>>> POS_SOURCE_ID_MAP = new HashMap<>();
+    private static final Map<String, PositionSourceType<?>> POS_SOURCE_MAP = new Object2ObjectOpenHashMap<>();
+    private static final Byte2ObjectMap<Int2ObjectMap<PositionSourceType<?>>> POS_SOURCE_ID_MAP = new Byte2ObjectOpenHashMap<>();
     private static final TypesBuilder TYPES_BUILDER = new TypesBuilder("world/world_position_source_mappings");
 
     @ApiStatus.Internal
@@ -99,7 +102,7 @@ public class PositionSourceTypes {
 
     public static PositionSourceType<?> getById(ClientVersion version, int id) {
         int index = TYPES_BUILDER.getDataIndex(version);
-        Map<Integer, PositionSourceType<?>> idMap = POS_SOURCE_ID_MAP.get((byte) index);
+        Int2ObjectMap<PositionSourceType<?>> idMap = POS_SOURCE_ID_MAP.get((byte) index);
         return idMap.get(id);
     }
 

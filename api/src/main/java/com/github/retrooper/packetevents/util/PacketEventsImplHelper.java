@@ -42,9 +42,7 @@ public class PacketEventsImplHelper {
         int preProcessIndex = ByteBufHelper.readerIndex(buffer);
         PacketSendEvent packetSendEvent = EventCreationUtil.createSendEvent(channel, user, player, buffer, autoProtocolTranslation);
         int processIndex = ByteBufHelper.readerIndex(buffer);
-        PacketEvents.getAPI().getEventManager().callEvent(packetSendEvent, () -> {
-            ByteBufHelper.readerIndex(buffer, processIndex);
-        });
+        PacketEvents.getAPI().getEventManager().callEvent(packetSendEvent, () -> ByteBufHelper.readerIndex(buffer, processIndex));
         if (!packetSendEvent.isCancelled()) {
             //Did they ever use a wrapper?
             if (packetSendEvent.getLastUsedWrapper() != null) {

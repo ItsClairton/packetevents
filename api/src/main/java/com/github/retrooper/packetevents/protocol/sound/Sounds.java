@@ -23,17 +23,20 @@ import com.github.retrooper.packetevents.resources.ResourceLocation;
 import com.github.retrooper.packetevents.util.mappings.MappingHelper;
 import com.github.retrooper.packetevents.util.mappings.TypesBuilder;
 import com.github.retrooper.packetevents.util.mappings.TypesBuilderData;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectMap;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 public class Sounds {
 
-    private static final Map<String, Sound> SOUND_TYPE_MAP = new HashMap<>();
-    private static final Map<Byte, Map<Integer, Sound>> SOUND_TYPE_ID_MAP = new HashMap<>();
+    private static final Map<String, Sound> SOUND_TYPE_MAP = new Object2ObjectOpenHashMap<>();
+    private static final Byte2ObjectMap<Int2ObjectMap<Sound>> SOUND_TYPE_ID_MAP = new Byte2ObjectOpenHashMap<>();
 
     private static final TypesBuilder TYPES_BUILDER = new TypesBuilder("sound/sound_mappings");
 
@@ -90,7 +93,7 @@ public class Sounds {
 
     public static @Nullable Sound getById(ClientVersion version, int id) {
         int index = TYPES_BUILDER.getDataIndex(version);
-        Map<Integer, Sound> idMap = SOUND_TYPE_ID_MAP.get((byte) index);
+        Int2ObjectMap<Sound> idMap = SOUND_TYPE_ID_MAP.get((byte) index);
         return idMap.get(id);
     }
 

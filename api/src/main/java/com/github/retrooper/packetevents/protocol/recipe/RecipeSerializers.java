@@ -32,18 +32,21 @@ import com.github.retrooper.packetevents.util.mappings.MappingHelper;
 import com.github.retrooper.packetevents.util.mappings.TypesBuilder;
 import com.github.retrooper.packetevents.util.mappings.TypesBuilderData;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectMap;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 public class RecipeSerializers {
 
-    private static final Map<String, RecipeSerializer<?>> PATTERN_TYPE_MAP = new HashMap<>();
-    private static final Map<Byte, Map<Integer, RecipeSerializer<?>>> PATTERN_TYPE_ID_MAP = new HashMap<>();
+    private static final Map<String, RecipeSerializer<?>> PATTERN_TYPE_MAP = new Object2ObjectOpenHashMap<>();
+    private static final Byte2ObjectMap<Int2ObjectMap<RecipeSerializer<?>>> PATTERN_TYPE_ID_MAP = new Byte2ObjectOpenHashMap<>();
     private static final TypesBuilder TYPES_BUILDER = new TypesBuilder("item/recipe_serializer_mappings");
 
     public static <T extends RecipeData> RecipeSerializer<T> define(
@@ -109,7 +112,7 @@ public class RecipeSerializers {
 
     public static RecipeSerializer<?> getById(ClientVersion version, int id) {
         int index = TYPES_BUILDER.getDataIndex(version);
-        Map<Integer, RecipeSerializer<?>> idMap = PATTERN_TYPE_ID_MAP.get((byte) index);
+        Int2ObjectMap<RecipeSerializer<?>> idMap = PATTERN_TYPE_ID_MAP.get((byte) index);
         return idMap.get(id);
     }
 

@@ -124,6 +124,7 @@ public class SpigotPacketEventsBuilder {
                     //Register internal packet listener (should be the first listener)
                     //This listener doesn't do any modifications to the packets, just reads data
                     getEventManager().registerListener(new InternalBukkitPacketListener());
+                    getServerManager().isCompressionEnabled(); // Caching
                 }
             }
 

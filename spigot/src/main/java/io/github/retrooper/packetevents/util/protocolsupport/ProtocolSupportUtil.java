@@ -26,27 +26,31 @@ import protocolsupport.api.ProtocolSupportAPI;
 import java.net.SocketAddress;
 
 public class ProtocolSupportUtil {
-    private static ProtocolSupportState available = ProtocolSupportState.UNKNOWN;
+
+    private static boolean CHECKED_FOR_PS = false;
+    private static boolean PS_PRESENT = false;
 
     public static boolean isAvailable() {
-        if (available == ProtocolSupportState.UNKNOWN) {
+        if (!CHECKED_FOR_PS) {
             try {
                 ClassLoader classLoader = PacketEvents.getAPI().getPlugin().getClass().getClassLoader();
                 classLoader.loadClass("protocolsupport.api.ProtocolSupportAPI");
-                available = ProtocolSupportState.ENABLED;
+                PS_PRESENT = true;
+                CHECKED_FOR_PS = true;
                 return true;
             } catch (Exception e) {
-                available = ProtocolSupportState.DISABLED;
+                PS_PRESENT = false;
+                CHECKED_FOR_PS = true;
                 return false;
             }
         } else {
-            return available == ProtocolSupportState.ENABLED;
+            return PS_PRESENT;
         }
     }
 
     public static void checkIfProtocolSupportIsPresent() {
-        boolean present = Bukkit.getPluginManager().isPluginEnabled("ProtocolSupport");
-        available = present ? ProtocolSupportState.ENABLED : ProtocolSupportState.DISABLED;
+        PS_PRESENT = Bukkit.getPluginManager().isPluginEnabled("ProtocolSupport");
+        CHECKED_FOR_PS = true;
     }
 
     public static int getProtocolVersion(SocketAddress address) {
@@ -56,10 +60,5 @@ public class ProtocolSupportUtil {
     public static int getProtocolVersion(Player player) {
         return ProtocolSupportAPI.getProtocolVersion(player).getId();
     }
-}
 
-enum ProtocolSupportState {
-    UNKNOWN,
-    DISABLED,
-    ENABLED
 }

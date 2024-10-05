@@ -21,12 +21,15 @@ package com.github.retrooper.packetevents.util.mappings;
 import com.github.retrooper.packetevents.protocol.mapper.MappedEntity;
 import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 import com.github.retrooper.packetevents.resources.ResourceLocation;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectMap;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -35,8 +38,8 @@ public final class VersionedRegistry<T extends MappedEntity> implements IRegistr
     private final ResourceLocation registryKey;
     private final TypesBuilder typesBuilder;
 
-    private final Map<String, T> typeMap = new HashMap<>();
-    private final Map<Byte, Map<Integer, T>> typeIdMap = new HashMap<>();
+    private final Map<String, T> typeMap = new Object2ObjectOpenHashMap<>();
+    private final Byte2ObjectMap<Int2ObjectMap<T>> typeIdMap = new Byte2ObjectOpenHashMap<>();
 
     public VersionedRegistry(String registry, String mappingsPath) {
         this(new ResourceLocation(registry), mappingsPath);
@@ -73,8 +76,8 @@ public final class VersionedRegistry<T extends MappedEntity> implements IRegistr
 
     @Override
     public @Nullable T getById(ClientVersion version, int id) {
-        int index = this.typesBuilder.getDataIndex(version);
-        Map<Integer, T> idMap = this.typeIdMap.get((byte) index);
+        byte index = (byte) this.typesBuilder.getDataIndex(version);
+        Int2ObjectMap<T> idMap = this.typeIdMap.get(index);
         return idMap.get(id);
     }
 

@@ -28,8 +28,15 @@ import com.github.retrooper.packetevents.util.mappings.GlobalRegistryHolder;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.util.Properties;
+
 public class ServerManagerImpl implements ServerManager {
     private ServerVersion serverVersion;
+
+    private boolean checkedCompression;
+    private boolean compressionEnabled;
 
     private ServerVersion resolveVersionNoCache() {
         Plugin plugin = (Plugin) PacketEvents.getAPI().getPlugin();
@@ -58,6 +65,46 @@ public class ServerManagerImpl implements ServerManager {
 
         plugin.getLogger().warning("[packetevents] Your server software is preventing us from checking the server version. This is what we found: " + Bukkit.getBukkitVersion() + ". We will assume the server version is " + fallbackVersion.name() + "...");
         return fallbackVersion;
+    }
+
+    private boolean resolveCompressionNoCache() {
+        Properties properties = new Properties();
+        Plugin plugin = (Plugin) PacketEvents.getAPI().getPlugin();
+
+        try (InputStream stream = Files.newInputStream(new File("server.properties").toPath())) {
+            properties.load(stream);
+        } catch (IOException exception) {
+            plugin.getLogger().warning(String.format("[packetevents] Failed to fetch server.properties " +
+                    "file to check compression state (%s).", exception.getMessage()));
+
+            return true;
+        }
+
+        String rawStr = properties.getProperty("network-compression-threshold");
+        if (rawStr == null) {
+            plugin.getLogger().warning("[packetevents] Not found network-compression-threshold in server.properties.");
+
+            return true;
+        }
+
+        try {
+            int compression = Integer.parseInt(rawStr);
+            return compression > 0;
+        } catch (Exception ignored) {
+            plugin.getLogger().warning("[packetevents] Invalid network-compression-threshold in server.properties.");
+
+            return true;
+        }
+    }
+
+    @Override
+    public boolean isCompressionEnabled() {
+        if (!checkedCompression) {
+            compressionEnabled = resolveCompressionNoCache();
+            checkedCompression = true;
+        }
+
+        return compressionEnabled;
     }
 
     @Override

@@ -23,15 +23,18 @@ import com.github.retrooper.packetevents.resources.ResourceLocation;
 import com.github.retrooper.packetevents.util.mappings.MappingHelper;
 import com.github.retrooper.packetevents.util.mappings.TypesBuilder;
 import com.github.retrooper.packetevents.util.mappings.TypesBuilderData;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectMap;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class Attributes {
 
-    private static final Map<String, Attribute> ATTRIBUTE_MAP = new HashMap<>();
-    private static final Map<Byte, Map<Integer, Attribute>> ATTRIBUTE_ID_MAP = new HashMap<>();
+    private static final Map<String, Attribute> ATTRIBUTE_MAP = new Object2ObjectOpenHashMap<>();
+    private static final Byte2ObjectMap<Int2ObjectMap<Attribute>> ATTRIBUTE_ID_MAP = new Byte2ObjectOpenHashMap<>();
     private static final TypesBuilder TYPES_BUILDER = new TypesBuilder("attribute/attribute_mappings");
 
     public static Attribute define(String key) {
@@ -67,7 +70,7 @@ public class Attributes {
 
     public static Attribute getById(ClientVersion version, int id) {
         int index = TYPES_BUILDER.getDataIndex(version);
-        Map<Integer, Attribute> idMap = ATTRIBUTE_ID_MAP.get((byte) index);
+        Int2ObjectMap<Attribute> idMap = ATTRIBUTE_ID_MAP.get((byte) index);
         return idMap.get(id);
     }
 

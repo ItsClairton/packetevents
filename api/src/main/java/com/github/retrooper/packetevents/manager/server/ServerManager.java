@@ -31,6 +31,12 @@ public interface ServerManager {
     ServerVersion getVersion();
 
     /**
+     * Gets whether server packet compression is enabled or not.
+     * @return Get server compression state
+     */
+    default boolean isCompressionEnabled() { return true; };
+
+    /**
      * Get the operating system of the local machine
      *
      * @return Get Operating System

@@ -25,14 +25,17 @@ import com.github.retrooper.packetevents.resources.ResourceLocation;
 import com.github.retrooper.packetevents.util.mappings.MappingHelper;
 import com.github.retrooper.packetevents.util.mappings.TypesBuilder;
 import com.github.retrooper.packetevents.util.mappings.TypesBuilderData;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectMap;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class Instruments {
 
-    private static final Map<String, Instrument> INSTRUMENT_MAP = new HashMap<>();
-    private static final Map<Byte, Map<Integer, Instrument>> INSTRUMENT_ID_MAP = new HashMap<>();
+    private static final Map<String, Instrument> INSTRUMENT_MAP = new Object2ObjectOpenHashMap<>();
+    private static final Byte2ObjectMap<Int2ObjectMap<Instrument>> INSTRUMENT_ID_MAP = new Byte2ObjectOpenHashMap<>();
     private static final TypesBuilder TYPES_BUILDER = new TypesBuilder("item/item_instrument_mappings");
 
     public static Instrument define(String key, Sound sound) {
@@ -87,7 +90,7 @@ public class Instruments {
 
     public static Instrument getById(ClientVersion version, int id) {
         int index = TYPES_BUILDER.getDataIndex(version);
-        Map<Integer, Instrument> idMap = INSTRUMENT_ID_MAP.get((byte) index);
+        Int2ObjectMap<Instrument> idMap = INSTRUMENT_ID_MAP.get((byte) index);
         return idMap.get(id);
     }
 

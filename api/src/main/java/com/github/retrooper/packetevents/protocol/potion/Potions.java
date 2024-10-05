@@ -23,9 +23,12 @@ import com.github.retrooper.packetevents.resources.ResourceLocation;
 import com.github.retrooper.packetevents.util.mappings.MappingHelper;
 import com.github.retrooper.packetevents.util.mappings.TypesBuilder;
 import com.github.retrooper.packetevents.util.mappings.TypesBuilderData;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectMap;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -37,8 +40,8 @@ import java.util.Map;
  */
 public class Potions {
 
-    private static final Map<String, Potion> POTION_MAP = new HashMap<>();
-    private static final Map<Byte, Map<Integer, Potion>> POTION_ID_MAP = new HashMap<>();
+    private static final Map<String, Potion> POTION_MAP = new Object2ObjectOpenHashMap<>();
+    private static final Byte2ObjectMap<Int2ObjectMap<Potion>> POTION_ID_MAP = new Byte2ObjectOpenHashMap<>();
 
     // initial mappings based upon https://minecraft.wiki/w/Potion#History
     private static final TypesBuilder TYPES_BUILDER = new TypesBuilder("item/item_potion_mappings");

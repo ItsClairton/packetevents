@@ -24,21 +24,24 @@ import com.github.retrooper.packetevents.resources.ResourceLocation;
 import com.github.retrooper.packetevents.util.mappings.MappingHelper;
 import com.github.retrooper.packetevents.util.mappings.TypesBuilder;
 import com.github.retrooper.packetevents.util.mappings.TypesBuilderData;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectMap;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 public class StateTypes {
 
-    private static final List<StateType> ALL_STATE_TYPES = new ArrayList<>();
-    private static final Map<String, StateType.Mapped> BY_NAME = new HashMap<>();
-    private static final Map<Byte, Map<Integer, StateType.Mapped>> BY_ID = new HashMap<>();
+    private static final List<StateType> ALL_STATE_TYPES = new ObjectArrayList<>();
+    private static final Map<String, StateType.Mapped> BY_NAME = new Object2ObjectOpenHashMap<>();
+    private static final Byte2ObjectMap<Int2ObjectMap<StateType.Mapped>> BY_ID = new Byte2ObjectOpenHashMap<>();
     private static final TypesBuilder TYPES_BUILDER = new TypesBuilder("block/block_type_mappings");
 
     public static Collection<StateType> values() {
@@ -69,7 +72,7 @@ public class StateTypes {
 
     public static StateType.Mapped getMappedById(ClientVersion version, int id) {
         int index = TYPES_BUILDER.getDataIndex(version);
-        Map<Integer, StateType.Mapped> idMap = BY_ID.get((byte) index);
+        Int2ObjectMap<StateType.Mapped> idMap = BY_ID.get((byte) index);
         return idMap.get(id);
     }
 

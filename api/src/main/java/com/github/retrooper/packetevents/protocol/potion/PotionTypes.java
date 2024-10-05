@@ -25,11 +25,14 @@ import com.github.retrooper.packetevents.resources.ResourceLocation;
 import com.github.retrooper.packetevents.util.mappings.MappingHelper;
 import com.github.retrooper.packetevents.util.mappings.TypesBuilder;
 import com.github.retrooper.packetevents.util.mappings.TypesBuilderData;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectMap;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -40,8 +43,8 @@ import java.util.Map;
  */
 public class PotionTypes {
 
-    private static final Map<String, PotionType> POTION_TYPE_MAP = new HashMap<>();
-    private static final Map<Byte, Map<Integer, PotionType>> POTION_TYPE_ID_MAP = new HashMap<>();
+    private static final Map<String, PotionType> POTION_TYPE_MAP = new Object2ObjectOpenHashMap<>();
+    private static final Byte2ObjectMap<Int2ObjectMap<PotionType>> POTION_TYPE_ID_MAP = new Byte2ObjectOpenHashMap<>();
 
     // initial mappings based upon https://minecraft.wiki/w/Effect#History
     private static final TypesBuilder TYPES_BUILDER = new TypesBuilder("entity/entity_effect_mappings");

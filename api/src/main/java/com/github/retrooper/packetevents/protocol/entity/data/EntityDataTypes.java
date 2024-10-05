@@ -37,6 +37,11 @@ import com.github.retrooper.packetevents.util.Vector3i;
 import com.github.retrooper.packetevents.util.mappings.TypesBuilder;
 import com.github.retrooper.packetevents.util.mappings.TypesBuilderData;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectMap;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.kyori.adventure.text.Component;
 
 import java.util.*;
@@ -49,8 +54,8 @@ public class EntityDataTypes {
     //boolean was added in 1.9
     //nbt was added in 1.12
 
-    private static final Map<String, EntityDataType<?>> ENTITY_DATA_TYPE_MAP = new HashMap<>();
-    private static final Map<Byte, Map<Integer, EntityDataType<?>>> ENTITY_DATA_TYPE_ID_MAP = new HashMap<>();
+    private static final Map<String, EntityDataType<?>> ENTITY_DATA_TYPE_MAP = new Object2ObjectOpenHashMap<>();
+    private static final Byte2ObjectMap<Int2ObjectMap<EntityDataType<?>>> ENTITY_DATA_TYPE_ID_MAP = new Byte2ObjectOpenHashMap<>();
     protected static final TypesBuilder TYPES_BUILDER = new TypesBuilder("entity/entity_data_type_mappings");
 
     public static final EntityDataType<Byte> BYTE = define("byte", PacketWrapper::readByte, PacketWrapper::writeByte);
@@ -215,8 +220,8 @@ public class EntityDataTypes {
     }
 
     public static EntityDataType<?> getById(ClientVersion version, int id) {
-        int index = TYPES_BUILDER.getDataIndex(version);
-        Map<Integer, EntityDataType<?>> typeIdMap = ENTITY_DATA_TYPE_ID_MAP.get((byte) index);
+        byte index = (byte) TYPES_BUILDER.getDataIndex(version);
+        Int2ObjectMap<EntityDataType<?>> typeIdMap = ENTITY_DATA_TYPE_ID_MAP.get(index);
         return typeIdMap.get(id);
     }
 
@@ -232,8 +237,8 @@ public class EntityDataTypes {
         for (ClientVersion version : TYPES_BUILDER.getVersions()) {
             int index = TYPES_BUILDER.getDataIndex(version);
             if (index == -1) continue;
-            Map<Integer, EntityDataType<?>> typeIdMap = ENTITY_DATA_TYPE_ID_MAP
-                    .computeIfAbsent((byte) index, k -> new HashMap<>());
+            Int2ObjectMap<EntityDataType<?>> typeIdMap = ENTITY_DATA_TYPE_ID_MAP
+                    .computeIfAbsent((byte) index, k -> new Int2ObjectOpenHashMap<>());
             typeIdMap.put(type.getId(version), type);
         }
         return type;

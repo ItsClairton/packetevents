@@ -26,6 +26,9 @@ import com.github.retrooper.packetevents.protocol.nbt.NBTNumber;
 import com.github.retrooper.packetevents.protocol.nbt.NBTString;
 import com.github.retrooper.packetevents.protocol.nbt.serializer.SequentialNBTReader;
 import com.github.retrooper.packetevents.protocol.player.ClientVersion;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.io.BufferedInputStream;
@@ -105,11 +108,14 @@ public class MappingHelper {
         return diffs;
     }
 
-    public static  <T extends MappedEntity> void registerMapping(TypesBuilder builder, Map<String, T> typeMap, Map<Byte, Map<Integer, T>> typeIdMap, T type) {
+    public static  <T extends MappedEntity> void registerMapping(TypesBuilder builder,
+                                                                 Map<String, T> typeMap,
+                                                                 Byte2ObjectMap<Int2ObjectMap<T>> typeIdMap,
+                                                                 T type) {
         typeMap.put(type.getName().toString(), type);
         for (ClientVersion version : builder.getVersions()) {
             int index = builder.getDataIndex(version);
-            Map<Integer, T> idMap = typeIdMap.computeIfAbsent((byte) index, k -> new HashMap<>());
+            Int2ObjectMap<T> idMap = typeIdMap.computeIfAbsent((byte) index, k -> new Int2ObjectOpenHashMap<>());
             idMap.put(type.getId(version), type);
         }
     }

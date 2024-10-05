@@ -20,12 +20,12 @@ package com.github.retrooper.packetevents.protocol.world.states.defaulttags;
 
 import com.github.retrooper.packetevents.protocol.world.states.type.StateType;
 import com.github.retrooper.packetevents.protocol.world.states.type.StateTypes;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -37,7 +37,7 @@ import java.util.Set;
  * @author DefineOutside
  */
 public class BlockTags {
-    private static final HashMap<String, BlockTags> byName = new HashMap<>();
+    private static final Object2ObjectOpenHashMap<String, BlockTags> byName = new Object2ObjectOpenHashMap<>();
 
     public static final BlockTags WOOL = bind("wool");
     public static final BlockTags PLANKS = bind("planks");
@@ -437,7 +437,7 @@ public class BlockTags {
     }
 
     String name;
-    Set<StateType> states = new HashSet<>(); // o(1)
+    Set<StateType> states = new ObjectOpenHashSet<>(); // o(1)
     boolean reallyEmpty;
 
     public BlockTags(final String name) {

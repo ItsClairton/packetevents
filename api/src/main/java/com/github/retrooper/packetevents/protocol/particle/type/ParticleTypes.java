@@ -36,18 +36,21 @@ import com.github.retrooper.packetevents.util.mappings.TypesBuilderData;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper.Reader;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper.Writer;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectMap;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 public class ParticleTypes {
 
-    private static final Map<String, ParticleType<?>> PARTICLE_TYPE_MAP = new HashMap<>();
-    private static final Map<Byte, Map<Integer, ParticleType<?>>> PARTICLE_TYPE_ID_MAP = new HashMap<>();
+    private static final Map<String, ParticleType<?>> PARTICLE_TYPE_MAP = new Object2ObjectOpenHashMap<>();
+    private static final Byte2ObjectMap<Int2ObjectMap<ParticleType<?>>> PARTICLE_TYPE_ID_MAP = new Byte2ObjectOpenHashMap<>();
     private static final TypesBuilder TYPES_BUILDER = new TypesBuilder("particle/particle_type_mappings");
 
     public static ParticleType<ParticleData> define(String key) {
@@ -122,7 +125,7 @@ public class ParticleTypes {
 
     public static ParticleType<?> getById(ClientVersion version, int id) {
         int index = TYPES_BUILDER.getDataIndex(version);
-        Map<Integer, ParticleType<?>> typeIdMap = PARTICLE_TYPE_ID_MAP.get((byte) index);
+        Int2ObjectMap<ParticleType<?>> typeIdMap = PARTICLE_TYPE_ID_MAP.get((byte) index);
         return typeIdMap.get(id);
     }
 

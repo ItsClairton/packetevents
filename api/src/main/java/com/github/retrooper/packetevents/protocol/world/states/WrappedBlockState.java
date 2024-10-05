@@ -39,8 +39,8 @@ import com.github.retrooper.packetevents.protocol.world.states.type.StateTypes;
 import com.github.retrooper.packetevents.protocol.world.states.type.StateValue;
 import com.github.retrooper.packetevents.util.BinaryNBTCompound;
 import com.github.retrooper.packetevents.util.mappings.MappingHelper;
-import it.unimi.dsi.fastutil.bytes.Byte2ObjectArrayMap;
 import it.unimi.dsi.fastutil.bytes.Byte2ObjectMap;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -68,11 +68,11 @@ import static com.github.retrooper.packetevents.util.adventure.AdventureIndexUti
  */
 public class WrappedBlockState {
     private static final WrappedBlockState AIR = new WrappedBlockState(StateTypes.AIR, new EnumMap<>(StateValue.class), 0, (byte) 0);
-    private static final Byte2ObjectMap<Map<String, WrappedBlockState>> BY_STRING = new Byte2ObjectArrayMap<>();
-    private static final Byte2ObjectMap<Int2ObjectMap<WrappedBlockState>> BY_ID = new Byte2ObjectArrayMap<>();
-    private static final Byte2ObjectMap<Map<WrappedBlockState, String>> INTO_STRING = new Byte2ObjectArrayMap<>();
-    private static final Byte2ObjectMap<Object2IntMap<WrappedBlockState>> INTO_ID = new Byte2ObjectArrayMap<>();
-    private static final Byte2ObjectMap<Map<StateType, WrappedBlockState>> DEFAULT_STATES = new Byte2ObjectArrayMap<>();
+    private static final Byte2ObjectMap<Map<String, WrappedBlockState>> BY_STRING = new Byte2ObjectOpenHashMap<>(1);
+    private static final Byte2ObjectMap<Int2ObjectMap<WrappedBlockState>> BY_ID = new Byte2ObjectOpenHashMap<>(1);
+    private static final Byte2ObjectMap<Map<WrappedBlockState, String>> INTO_STRING = new Byte2ObjectOpenHashMap<>(1);
+    private static final Byte2ObjectMap<Object2IntMap<WrappedBlockState>> INTO_ID = new Byte2ObjectOpenHashMap<>(1);
+    private static final Byte2ObjectMap<Map<StateType, WrappedBlockState>> DEFAULT_STATES = new Byte2ObjectOpenHashMap<>(1);
 
     int globalID;
     StateType type;
@@ -327,7 +327,7 @@ public class WrappedBlockState {
                         }
 
                         StringBuilder dataStringBuilder = new StringBuilder();
-                        Map<StateValue, Object> dataMap = new HashMap<>(key.size());
+                        Map<StateValue, Object> dataMap = new Object2ObjectOpenHashMap<>(key.size());
 
                         for (Map.Entry<String, NBT> props : key.getTags().entrySet()) {
                             StateValue state = StateValue.byName(props.getKey());
@@ -398,7 +398,7 @@ public class WrappedBlockState {
             return;
         }
 
-        final Map<String, String> STRING_UPDATER = new HashMap<>();
+        final Map<String, String> STRING_UPDATER = new Object2ObjectOpenHashMap<>();
         STRING_UPDATER.put("grass_path", "dirt_path"); // 1.16 -> 1.17
 
         try (final SequentialNBTReader.Compound compound = MappingHelper.decompress("mappings/block/modern_block_mappings")) {
@@ -461,7 +461,7 @@ public class WrappedBlockState {
                             }
 
                             StringBuilder dataStringBuilder = new StringBuilder();
-                            Map<StateValue, Object> dataMap = new HashMap<>(key.size());
+                            Map<StateValue, Object> dataMap = new Object2ObjectOpenHashMap<>(key.size());
 
                             for (Map.Entry<String, NBT> props : key.getTags().entrySet()) {
                                 StateValue state = StateValue.byName(props.getKey());
@@ -1390,7 +1390,7 @@ public class WrappedBlockState {
      */
     private void checkIfCloneNeeded() {
         if (!hasClonedData) {
-            data = new HashMap<>(data);
+            data = new Object2ObjectOpenHashMap<>(data);
             hasClonedData = true;
         }
     }
@@ -1408,7 +1408,7 @@ public class WrappedBlockState {
             WrappedBlockState blockState = BY_ID.get(mappingsIndex).getOrDefault(oldGlobalID, AIR).clone();
             this.type = blockState.type;
             this.globalID = blockState.globalID;
-            this.data = new HashMap<>(blockState.data);
+            this.data = new Object2ObjectOpenHashMap<>(blockState.data);
 
             // Stack tracing is expensive
             if (PacketEvents.getAPI().getSettings().isDebugEnabled()) {
