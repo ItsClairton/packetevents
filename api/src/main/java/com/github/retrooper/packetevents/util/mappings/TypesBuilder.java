@@ -149,10 +149,6 @@ public class TypesBuilder {
         return versionMapper.getVersions();
     }
 
-    public ClientVersion[] getReversedVersions() {
-        return versionMapper.getReversedVersions();
-    }
-
     public int getDataIndex(ClientVersion rawVersion) {
         return versionMapper.getIndex(rawVersion);
     }

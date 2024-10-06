@@ -19,18 +19,23 @@
 package com.github.retrooper.packetevents.util;
 
 import com.github.retrooper.packetevents.protocol.player.ClientVersion;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 
 public class VersionMapper {
+
     private final ClientVersion[] versions;
-    private final ClientVersion[] reversedVersions;
+    private final Int2IntMap indexes;
 
     public VersionMapper(ClientVersion... versions) {
         this.versions = versions;
-        reversedVersions = new ClientVersion[versions.length];
-        int index = 0;
-        for (int i = versions.length - 1; i >= 0; i--) {
-            reversedVersions[index] = versions[i];
-            index++;
+        this.indexes = new Int2IntOpenHashMap(versions.length);
+
+        int total = (versions.length - 1);
+        int index = versions.length - 1;
+        for (ClientVersion version : versions) {
+            indexes.put(version.getProtocolVersion(), total - index);
+            index--;
         }
     }
 
@@ -38,19 +43,8 @@ public class VersionMapper {
         return versions;
     }
 
-    public ClientVersion[] getReversedVersions() {
-        return reversedVersions;
+    public int getIndex(ClientVersion version) {
+        return indexes.getOrDefault(version.getProtocolVersion(), 0);
     }
 
-    public int getIndex(ClientVersion version) {
-        int index = reversedVersions.length - 1;
-        for (ClientVersion v : reversedVersions) {
-            if (version.isNewerThanOrEquals(v)) {
-                return index;
-            }
-            index--;
-        }
-        //Give them the oldest version
-        return 0;
-    }
 }
