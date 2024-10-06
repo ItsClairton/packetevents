@@ -26,10 +26,8 @@ import com.github.retrooper.packetevents.exception.PacketProcessException;
 import com.github.retrooper.packetevents.netty.buffer.ByteBufHelper;
 import com.github.retrooper.packetevents.protocol.ConnectionState;
 import com.github.retrooper.packetevents.protocol.player.User;
-import com.github.retrooper.packetevents.util.EventCreationUtil;
 import com.github.retrooper.packetevents.util.ExceptionUtil;
 import com.github.retrooper.packetevents.util.PacketEventsImplHelper;
-import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDisconnect;
 import io.github.retrooper.packetevents.injector.connection.ServerConnectionInitializer;
 import io.github.retrooper.packetevents.util.SpigotReflectionUtil;
@@ -51,12 +49,13 @@ import java.util.List;
 public class PacketEventsEncoder extends MessageToMessageEncoder<ByteBuf> {
     public User user;
     public Player player;
-    private boolean handledCompression = COMPRESSION_ENABLED_EVENT != null;
+    private boolean handledCompression;
     private ChannelPromise promise;
     public static final Object COMPRESSION_ENABLED_EVENT = paperCompressionEnabledEvent();
 
     public PacketEventsEncoder(User user) {
         this.user = user;
+        this.handledCompression = COMPRESSION_ENABLED_EVENT != null || !PacketEvents.getAPI().getServerManager().isCompressionEnabled();
     }
 
     public PacketEventsEncoder(ChannelHandler encoder) {
