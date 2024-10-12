@@ -37,9 +37,11 @@ tasks {
     }
 
     processResources {
-        inputs.property("version", project.version)
+        val version = project.version
+
+        inputs.property("version", version)
         filesMatching(listOf("plugin.yml", "bungee.yml", "velocity-plugin.json", "fabric.mod.json")) {
-            expand("version" to project.version)
+            expand("version" to version)
         }
     }
 
